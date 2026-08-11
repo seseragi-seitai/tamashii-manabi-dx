@@ -1,0 +1,494 @@
+<!DOCTYPE html>  
+<html lang="ja">  
+<head>  
+  <meta charset="UTF-8">  
+  <title>魂の学びDX ― お告げガチャと印籠ガチャで、差異と生成を味わえるアプリ</title>  
+  <style>  
+    body {  
+      margin: 0;  
+      padding: 0;  
+      font-family: "游ゴシック体", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;  
+      background-color: #f3e7d5;  
+      color: #333;  
+      display: flex;  
+      justify-content: center;  
+    }  
+
+    .container {  
+      max-width: 640px;  
+      width: 100%;  
+      min-height: 100vh;  
+      display: flex;  
+      flex-direction: column;  
+      box-shadow: 0 0 12px rgba(0,0,0,0.15);  
+      background: #f9f0df;  
+      border-left: 6px solid #c7a56a;  
+      border-right: 6px solid #c7a56a;  
+    }  
+
+    header {  
+      padding: 16px 20px 8px;  
+      border-bottom: 1px solid #d9c7a1;  
+      background: linear-gradient(to bottom, #f9f0df, #f1e1c3);  
+    }  
+
+    header h1 {  
+      margin: 0;  
+      font-size: 22px;  
+      letter-spacing: 0.08em;  
+      font-family: "Times New Roman", "游明朝", "Yu Mincho", "Hiragino Mincho ProN", serif;  
+    }  
+
+    header p.subtitle {  
+      margin: 4px 0 0;  
+      font-size: 13px;  
+      color: #755c2b;  
+    }  
+
+    .chat-wrapper {  
+      flex: 1;  
+      padding: 16px 16px 8px;  
+      overflow-y: auto;  
+    }  
+
+    .system-note {  
+      font-size: 12px;  
+      margin-bottom: 10px;  
+      color: #7a6a4a;  
+      border-left: 3px solid #c7a56a;  
+      padding-left: 8px;  
+    }  
+
+    .message {  
+      max-width: 80%;  
+      margin-bottom: 10px;  
+      clear: both;  
+    }  
+
+    .user {  
+      float: right;  
+      text-align: right;  
+    }  
+
+    .user .bubble {  
+      background-color: #ffffff;  
+      border-radius: 12px 0 12px 12px;  
+      padding: 8px 10px;  
+      display: inline-block;  
+      border: 1px solid #d0c4b3;  
+      font-size: 14px;  
+    }  
+
+    .bot {  
+      float: left;  
+    }  
+
+    .bot .bubble {  
+      background-color: transparent;  
+      border-radius: 0;  
+      padding: 0;  
+      display: inline-block;  
+      font-family: "Times New Roman", "游明朝", "Yu Mincho", "Hiragino Mincho ProN", serif;  
+    }  
+
+    .bot .oracle {  
+      background-color: #f8f2e6;  
+      border-radius: 6px;  
+      border: 1px solid #b18c4e;  
+      padding: 10px 14px;  
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);  
+      display: inline-block;  
+      min-width: 260px;  
+    }  
+
+    .bot .oracle-title {  
+      font-size: 11px;  
+      color: #8a6a2b;  
+      margin-bottom: 4px;  
+      letter-spacing: 0.18em;  
+    }  
+
+    .bot .oracle-text {  
+      font-size: 16px;  
+      line-height: 1.6;  
+    }  
+
+    .bot .normal {  
+      background-color: #f1e4cf;  
+      border-radius: 0 12px 12px 12px;  
+      border: 1px solid #c7a56a;  
+      padding: 8px 10px;  
+      font-size: 13px;  
+      display: inline-block;  
+      font-family: "游ゴシック体", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;  
+    }  
+
+    .choice-area-container {  
+      margin-top: 4px;  
+      clear: both;  
+    }  
+
+    .choice-buttons {  
+      margin-top: 4px;  
+      display: flex;  
+      gap: 8px;  
+    }  
+
+    .choice-buttons button {  
+      flex: 1;  
+      font-size: 12px;  
+      padding: 6px 4px;  
+      background-color: #e0cba0;  
+      color: #4a3b20;  
+      border-radius: 20px;  
+      border: 1px solid #c7a56a;  
+      cursor: pointer;  
+    }  
+
+    .choice-buttons button:hover {  
+      background-color: #d7bd8c;  
+    }  
+
+    .input-area {  
+      padding: 8px 12px 12px;  
+      border-top: 1px solid #d9c7a1;  
+      background: #f5ebda;  
+    }  
+
+    .input-row {  
+      display: flex;  
+      gap: 8px;  
+      margin-bottom: 4px;  
+    }  
+
+    textarea {  
+      flex: 1;  
+      resize: none;  
+      padding: 6px 8px;  
+      border-radius: 4px;  
+      border: 1px solid #c9bca5;  
+      font-size: 13px;  
+      height: 60px;  
+      box-sizing: border-box;  
+    }  
+
+    button#sendBtn {  
+      padding: 8px 12px;  
+      border-radius: 4px;  
+      border: none;  
+      cursor: pointer;  
+      font-size: 13px;  
+      background-color: #c7a56a;  
+      color: #fff;  
+      white-space: nowrap;  
+    }  
+
+    button#sendBtn:disabled {  
+      background-color: #cbbda5;  
+      cursor: default;  
+    }  
+
+    button#resetBtn {  
+      padding: 4px 8px;  
+      border-radius: 4px;  
+      border: 1px solid #c9bca5;  
+      background-color: #efe2cc;  
+      color: #6a5a3a;  
+      font-size: 11px;  
+      cursor: pointer;  
+      margin-right: 4px;  
+    }  
+
+    button#resetBtn:hover {  
+      background-color: #e3d4bc;  
+    }  
+
+    .footer-note {  
+      font-size: 10px;  
+      color: #8a7b5c;  
+      text-align: center;  
+      margin-top: 4px;  
+    }  
+
+    @media (max-width: 480px) {  
+      header h1 {  
+        font-size: 18px;  
+      }  
+      header p.subtitle {  
+        font-size: 12px;  
+      }  
+    }  
+  </style>  
+</head>  
+<body>  
+  <div class="container">  
+    <header>  
+      <h1>魂の学びDX</h1>  
+      <p class="subtitle">― お告げガチャと印籠ガチャで、差異と生成を味わえるアプリ ―</p>  
+    </header>  
+
+    <div class="chat-wrapper" id="chat">  
+      <div class="system-note" id="systemNote">  
+        最近感じている「不満」「嫌なこと」を、下の入力欄に書いて送信してください。<br>  
+        今のあなたに合わせたお告げと印籠をお届けします。  
+      </div>  
+    </div>  
+
+    <div class="choice-area-container">  
+      <div id="choiceArea" class="choice-buttons" style="display:none;"></div>  
+    </div>  
+
+    <div class="input-area">  
+      <div class="input-row">  
+        <textarea id="userInput" placeholder="例）仕事で理不尽なミスの責任を押し付けられた…など"></textarea>  
+        <button id="sendBtn">送信</button>  
+      </div>  
+      <button id="resetBtn">もう一度遊ぶ</button>  
+      <div class="footer-note">  
+        ※このアプリは、あなたの世界観を否定するためではなく、「NOと言う権利」を思い出すための玩具です。  
+      </div>  
+    </div>  
+  </div>  
+
+  <script>  
+    const meaningMessages = [  
+      "主体的に生きれば人生は好転します。",  
+      "魂の願いに従って生きれば、現実は応援してくれます。",  
+      "人のせいにするのをやめれば運気が上がります。",  
+      "本当の自分を生きれば、宇宙は応援してくれます。",  
+      "ありのままの自分でいれば、現実を創造できます。",  
+      "波動が上がれば良いことを引き寄せます。",  
+      "誰かのせいにしている限り、幸せにはなれません。",  
+      "ポジティブ思考を心がけましょう。",  
+      "世界は常にあなたの心を反映しています。",  
+      "それは高次の存在からのメッセージです。",  
+      "過去の行いの報いを受けているのです。",  
+      "天罰です。",  
+      "バチが当たったのです。",  
+      "不運はあなたの波動が引き寄せたのです。",  
+      "その不幸はあなたが作っていたことに気づきましょう。",  
+      "それは魂の学びです。",  
+      "嫌な出来事は魂の学びのために起きています。",  
+      "すべては必要があって起きています。",  
+      "すべては魂の計画です。",  
+      "その苦しみはあなたが成長するために用意されました。",  
+      "目覚めのときです。",  
+      "次元上昇のチャンスです。"  
+    ];  
+
+    const inrouMessages = [  
+      "魂が進化していないようですね。",  
+      "あなたの修行が足りません。",  
+      "まだ執着を手放せていませんね。",  
+      "それはあなたのエゴが強すぎるからです。",  
+      "次元上昇すれば分かります。",  
+      "魂の願いに気付いていないからです。",  
+      "悟れば分かります。",  
+      "そんなことばかり言っていると地獄に落ちますよ。",  
+      "前世からのカルマなので、抵抗せず受け入れましょう。",  
+      "それもまた、完璧な宇宙の采配です。"  
+    ];  
+
+    const praiseMessages = [  
+      "周波数が整ってきました。",  
+      "波動が上がっています。",  
+      "魂の進化は目前です。",  
+      "思いのままに現実創造できています。",  
+      "次元上昇のサインです。"  
+    ];  
+
+    let phase = "start";  
+
+    const chat = document.getElementById("chat");  
+    const systemNote = document.getElementById("systemNote");  
+    const input = document.getElementById("userInput");  
+    const sendBtn = document.getElementById("sendBtn");  
+    const resetBtn = document.getElementById("resetBtn");  
+    const choiceArea = document.getElementById("choiceArea");  
+
+    function addBotMessage(text, type = "normal") {  
+      const msg = document.createElement("div");  
+      msg.classList.add("message", "bot");  
+
+      const bubble = document.createElement("div");  
+      bubble.classList.add("bubble");  
+
+      if (type.startsWith("oracle")) {  
+        const oracleWrapper = document.createElement("div");  
+        oracleWrapper.classList.add("oracle");  
+
+        const title = document.createElement("div");  
+        title.classList.add("oracle-title");  
+
+        if (type === "oracle-meaning") {  
+          title.textContent = "今日のお告げ";  
+        } else if (type === "oracle-inrou") {  
+          title.textContent = "今日の印籠";  
+        } else if (type === "oracle-praise") {  
+          title.textContent = "今日のご褒美メッセージ";  
+        } else {  
+          title.textContent = "メッセージ";  
+        }  
+
+        const textDiv = document.createElement("div");  
+        textDiv.classList.add("oracle-text");  
+        textDiv.textContent = text;  
+
+        oracleWrapper.appendChild(title);  
+        oracleWrapper.appendChild(textDiv);  
+        bubble.appendChild(oracleWrapper);  
+      } else {  
+        const inner = document.createElement("div");  
+        inner.classList.add("normal");  
+        inner.textContent = text;  
+        bubble.appendChild(inner);  
+      }  
+
+      msg.appendChild(bubble);  
+      chat.appendChild(msg);  
+      chat.scrollTop = chat.scrollHeight;  
+    }  
+
+    function addUserMessage(text) {  
+      const msg = document.createElement("div");  
+      msg.classList.add("message", "user");  
+
+      const bubble = document.createElement("div");  
+      bubble.classList.add("bubble");  
+      bubble.textContent = text;  
+
+      msg.appendChild(bubble);  
+      chat.appendChild(msg);  
+      chat.scrollTop = chat.scrollHeight;  
+    }  
+
+    function randomChoice(list) {  
+      const i = Math.floor(Math.random() * list.length);  
+      return list[i];  
+    }  
+
+    function setPhase(newPhase) {  
+      phase = newPhase;  
+    }  
+
+    function clearChoices() {  
+      choiceArea.innerHTML = "";  
+      choiceArea.style.display = "none";  
+    }  
+
+    function showChoices(choices) {  
+      choiceArea.innerHTML = "";  
+      choices.forEach(choice => {  
+        const btn = document.createElement("button");  
+        btn.textContent = choice.label;  
+        btn.onclick = choice.onClick;  
+        choiceArea.appendChild(btn);  
+      });  
+      choiceArea.style.display = "flex";  
+    }  
+
+    function handleSend() {  
+      const text = input.value.trim();  
+      if (!text) return;  
+
+      addUserMessage(text);  
+      input.value = "";  
+
+      if (phase === "start") {  
+        setPhase("meaning");  
+        sendBtn.disabled = true;  
+
+        setTimeout(() => {  
+          const msg = randomChoice(meaningMessages);  
+          addBotMessage(msg, "oracle-meaning");  
+
+          setTimeout(() => {  
+            addBotMessage("このお告げを読んで、どう感じましたか？\n下のボタンから、近いものを選んでください。");  
+            showChoices([  
+              {  
+                label: "ちょっと救われた気がする",  
+                onClick: () => handleSatisfied()  
+              },  
+              {  
+                label: "納得できない／イラっとする",  
+                onClick: () => handleUnsatisfied()  
+              }  
+            ]);  
+          }, 1300);  
+        }, 1300);  
+
+      } else if (phase === "unsatisfied_waiting_reply") {  
+        setPhase("inrou");  
+        sendBtn.disabled = true;  
+        clearChoices();  
+
+        setTimeout(() => {  
+          const msg = randomChoice(inrouMessages);  
+          addBotMessage(msg, "oracle-inrou");  
+          setTimeout(() => {  
+            addBotMessage(  
+              "今のやりとりの中に、「意味づけ」「差異」「生成」「印籠マジック」がすべて含まれています。どれがどれにあたるか分かりますか？　分からない方は整体処せせらぎの記事を読み返して復習しましょう。"  
+            );  
+            setPhase("done");  
+            sendBtn.disabled = true;  
+            input.disabled = true;  
+          }, 1200);  
+        }, 900);  
+      }  
+    }  
+
+    function handleSatisfied() {  
+      clearChoices();  
+      addUserMessage("ちょっと救われた気がする");  
+      setPhase("praise");  
+
+      setTimeout(() => {  
+        addBotMessage(  
+          "ちょっと救われた気がしたとのこと、良かったですね。あなたがそう感じたことは、あなたにとって真実です。ただ、お告げをした私が言うのもなんですが、同じお告げで救われない人もいることを知っておいてください。"  
+        );  
+        setTimeout(() => {  
+          const msg = randomChoice(praiseMessages);  
+          addBotMessage(msg, "oracle-praise");  
+          setPhase("done");  
+          sendBtn.disabled = true;  
+          input.disabled = true;  
+        }, 1200);  
+      }, 900);  
+    }  
+
+    function handleUnsatisfied() {  
+      clearChoices();  
+      addUserMessage("納得できない／イラっとする");  
+      setPhase("unsatisfied_waiting_reply");  
+
+      setTimeout(() => {  
+        addBotMessage("それでは、このお告げに言い返したいことを、メッセージに書いてみましょう。短くても構いません。");  
+        sendBtn.disabled = false;  
+      }, 900);  
+    }  
+
+    function handleReset() {  
+      // チャット欄を初期状態に戻す  
+      chat.innerHTML = "";  
+      const note = document.createElement("div");  
+      note.classList.add("system-note");  
+      note.id = "systemNote";  
+      note.innerHTML = '最近感じている「不満」「嫌なこと」を、下の入力欄に書いて送信してください。<br>今のあなたに合わせたお告げと印籠をお届けします。';  
+      chat.appendChild(note);  
+
+      // 状態とUIをリセット  
+      clearChoices();  
+      input.value = "";  
+      input.disabled = false;  
+      sendBtn.disabled = false;  
+      setPhase("start");  
+      input.focus();  
+    }  
+
+    sendBtn.addEventListener("click", handleSend);  
+    resetBtn.addEventListener("click", handleReset);  
+
+    setPhase("start");  
+  </script>  
+</body>  
+</html>
