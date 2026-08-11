@@ -3,6 +3,9 @@
 <head>  
   <meta charset="UTF-8">  
   <title>魂の学びDX ― お告げガチャと印籠ガチャで、差異と生成を味わえるアプリ</title>  
+  <!-- ★ スマホ表示用のviewportを追加 -->  
+  <meta name="viewport" content="width=device-width, initial-scale=1">  
+
   <style>  
     body {  
       margin: 0;  
@@ -27,7 +30,7 @@
     }  
 
     header {  
-      padding: 16px 20px 8px;  
+      padding: 14px 14px 8px;  
       border-bottom: 1px solid #d9c7a1;  
       background: linear-gradient(to bottom, #f9f0df, #f1e1c3);  
     }  
@@ -47,7 +50,7 @@
 
     .chat-wrapper {  
       flex: 1;  
-      padding: 16px 16px 8px;  
+      padding: 12px 10px 6px;  
       overflow-y: auto;  
     }  
 
@@ -60,7 +63,7 @@
     }  
 
     .message {  
-      max-width: 80%;  
+      max-width: 88%;  
       margin-bottom: 10px;  
       clear: both;  
     }  
@@ -95,10 +98,11 @@
       background-color: #f8f2e6;  
       border-radius: 6px;  
       border: 1px solid #b18c4e;  
-      padding: 10px 14px;  
+      padding: 10px 12px;  
       box-shadow: 0 2px 4px rgba(0,0,0,0.08);  
       display: inline-block;  
-      min-width: 260px;  
+      min-width: 240px;  
+      box-sizing: border-box;  
     }  
 
     .bot .oracle-title {  
@@ -109,7 +113,7 @@
     }  
 
     .bot .oracle-text {  
-      font-size: 16px;  
+      font-size: 17px;  /* ★ 少し大きめに */  
       line-height: 1.6;  
     }  
 
@@ -131,12 +135,14 @@
     .choice-buttons {  
       margin-top: 4px;  
       display: flex;  
-      gap: 8px;  
+      gap: 6px;  
+      padding: 0 8px 4px;  
+      box-sizing: border-box;  
     }  
 
     .choice-buttons button {  
       flex: 1;  
-      font-size: 12px;  
+      font-size: 11px;  
       padding: 6px 4px;  
       background-color: #e0cba0;  
       color: #4a3b20;  
@@ -150,14 +156,14 @@
     }  
 
     .input-area {  
-      padding: 8px 12px 12px;  
+      padding: 8px 10px 10px;  
       border-top: 1px solid #d9c7a1;  
       background: #f5ebda;  
     }  
 
     .input-row {  
       display: flex;  
-      gap: 8px;  
+      gap: 6px;  
       margin-bottom: 4px;  
     }  
 
@@ -167,13 +173,13 @@
       padding: 6px 8px;  
       border-radius: 4px;  
       border: 1px solid #c9bca5;  
-      font-size: 13px;  
+      font-size: 16px;   /* ★ iOSのオートズーム回避のため16px以上に */  
       height: 60px;  
       box-sizing: border-box;  
     }  
 
     button#sendBtn {  
-      padding: 8px 12px;  
+      padding: 8px 10px;  
       border-radius: 4px;  
       border: none;  
       cursor: pointer;  
@@ -210,12 +216,28 @@
       margin-top: 4px;  
     }  
 
+    /* ★ スマホ用微調整（幅480px以下） */  
     @media (max-width: 480px) {  
       header h1 {  
-        font-size: 18px;  
+        font-size: 19px;  
       }  
       header p.subtitle {  
         font-size: 12px;  
+      }  
+      .chat-wrapper {  
+        padding: 10px 8px 4px;  
+      }  
+      .system-note {  
+        font-size: 11px;  
+      }  
+      .user .bubble {  
+        font-size: 13px;  
+      }  
+      .bot .normal {  
+        font-size: 12px;  
+      }  
+      .footer-note {  
+        font-size: 9px;  
       }  
     }  
   </style>  
@@ -253,19 +275,19 @@
   <script>  
     const meaningMessages = [  
       "主体的に生きれば人生は好転します。",  
-      "魂の願いに従って生きれば、現実は応援してくれます。",  
-      "人のせいにするのをやめれば運気が上がります。",  
+      "魂の願いに従えば現実は応援してくれます。",  
+      "人のせいにするのをやめれば願いは叶います。",  
       "本当の自分を生きれば、宇宙は応援してくれます。",  
-      "ありのままの自分でいれば、現実を創造できます。",  
+      "ありのままの自分でいれば現実を創造できます。",  
       "波動が上がれば良いことを引き寄せます。",  
-      "誰かのせいにしている限り、幸せにはなれません。",  
+      "誰かのせいと思っている限り幸せにはなれません。",  
       "ポジティブ思考を心がけましょう。",  
       "世界は常にあなたの心を反映しています。",  
       "それは高次の存在からのメッセージです。",  
       "過去の行いの報いを受けているのです。",  
       "天罰です。",  
       "バチが当たったのです。",  
-      "不運はあなたの波動が引き寄せたのです。",  
+      "不運はあなたが引き寄せたのです。",  
       "その不幸はあなたが作っていたことに気づきましょう。",  
       "それは魂の学びです。",  
       "嫌な出来事は魂の学びのために起きています。",  
@@ -300,7 +322,6 @@
     let phase = "start";  
 
     const chat = document.getElementById("chat");  
-    const systemNote = document.getElementById("systemNote");  
     const input = document.getElementById("userInput");  
     const sendBtn = document.getElementById("sendBtn");  
     const resetBtn = document.getElementById("resetBtn");  
@@ -444,7 +465,7 @@
 
       setTimeout(() => {  
         addBotMessage(  
-          "ちょっと救われた気がしたとのこと、良かったですね。あなたがそう感じたことは、あなたにとって真実です。ただ、お告げをした私が言うのもなんですが、同じお告げで救われない人もいることを知っておいてください。"  
+          "救われた気がしたとのこと、良かったですね。ただ、お告げをした私が言うのもなんですが、同じお告げで救われない人もいることを知っておいてください。"  
         );  
         setTimeout(() => {  
           const msg = randomChoice(praiseMessages);  
@@ -468,7 +489,6 @@
     }  
 
     function handleReset() {  
-      // チャット欄を初期状態に戻す  
       chat.innerHTML = "";  
       const note = document.createElement("div");  
       note.classList.add("system-note");  
@@ -476,7 +496,6 @@
       note.innerHTML = '最近感じている「不満」「嫌なこと」を、下の入力欄に書いて送信してください。<br>今のあなたに合わせたお告げと印籠をお届けします。';  
       chat.appendChild(note);  
 
-      // 状態とUIをリセット  
       clearChoices();  
       input.value = "";  
       input.disabled = false;  
@@ -491,4 +510,4 @@
     setPhase("start");  
   </script>  
 </body>  
-</html>
+</html>  
